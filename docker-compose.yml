@@ -1,0 +1,34 @@
+services:
+  django:
+    container_name: myproject-django-container
+    image: myproject-django-app:latest
+    build: .
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - elasticsearch
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=myproject.settings  # Added this line ✅
+
+  elasticsearch:
+    container_name: myproject-elasticsearch-container
+    image: elasticsearch:8.17.3
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+volumes:
+  esdata:

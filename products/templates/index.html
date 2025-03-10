@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Search</title>
+    <script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .autocomplete {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .autocomplete-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .autocomplete-result-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .autocomplete-result {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .autocomplete-result:hover {
+            background-color: #f9f9f9;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="autocomplete" class="autocomplete">
+        <input class="autocomplete-input" placeholder="Search products..."/>
+        <ul class="autocomplete-result-list"></ul>
+    </div>
+    <div class="loading" id="loading">Loading...</div>
+
+    <script>
+        const loadingIndicator = document.getElementById('loading');
+
+        new Autocomplete('#autocomplete', {
+            search: async (input) => {
+                if (input.length < 2) return [];
+                loadingIndicator.style.display = 'block';
+                const response = await fetch(`/api/search/?q=${input}`);
+                const data = await response.json();
+                loadingIndicator.style.display = 'none';
+                return data.results.map(item => item.product_name);
+            },
+            onSelect: (item) => {
+                console.log('Selected:', item);
+            },
+        });
+    </script>
+</body>
+</html>
